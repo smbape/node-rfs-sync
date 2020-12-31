@@ -1,0 +1,39 @@
+{
+  "name": "rfs-sync",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "rfs-sync": "bin/rfs-sync.js"
+  },
+  "scripts": {
+    "prepublishOnly": "npm run lint && npm run test",
+    "lint": "eslint --fix index.js \"bin/**/*.js\" \"lib/**/*.js\" \"patches/**/*.js\" \"scripts/**/*.js\" \"tests/**/*.js\"",
+    "test": "mocha --full-trace tests/*.js"
+  },
+  "keywords": [
+    "rsync"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@log4js-node/log4js-api": "^1.0.2",
+    "async": "^3.2.0",
+    "commander": "^6.2.1",
+    "diff-match-patch": "^1.0.5",
+    "fs-explorer": "^1.4.2",
+    "micromatch": "^4.0.2",
+    "read": "^1.0.7",
+    "ssh2-streams": "^0.4.10",
+    "syncwritestream": "^1.0.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.16.0",
+    "lodash": "^4.17.20",
+    "mocha": "^8.2.1",
+    "sem-lib": "^2.6.4",
+    "ssh2": "^0.8.9"
+  }
+}

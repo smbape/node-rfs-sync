@@ -1,0 +1,5 @@
+/node_modules
+/tests
+/project.sublime-project
+/project.sublime-workspace
+/package-lock.json

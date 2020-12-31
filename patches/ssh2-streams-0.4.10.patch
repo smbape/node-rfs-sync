@@ -1,0 +1,97 @@
+--- a/lib/sftp.js
++++ b/lib/sftp.js
+@@ -1,5 +1,5 @@
+ // TODO: support EXTENDED request packets
+-
++/* eslint-disable quotes,curly,dot-location,no-unused-expressions,complexity,default-case,consistent-return,no-invalid-this,no-extra-parens */
+ var TransformStream = require('stream').Transform;
+ var ReadableStream = require('stream').Readable;
+ var WritableStream = require('stream').Writable;
+@@ -123,7 +123,7 @@
+ var RE_OPENSSH = /^SSH-2.0-(?:OpenSSH|dropbear)/;
+ var OPENSSH_MAX_DATA_LEN = (256 * 1024) - (2 * 1024)/*account for header data*/;
+ 
+-function DEBUG_NOOP(msg) {}
++function DEBUG_NOOP(msg) {} // eslint-disable-line no-empty-function
+ 
+ function SFTPStream(cfg, remoteIdentRaw) {
+   if (typeof cfg === 'string' && !remoteIdentRaw) {
+@@ -239,7 +239,7 @@
+   var chunkLeft;
+   var id;
+ 
+-  while (true) {
++  while (true) { // eslint-disable-line no-constant-condition
+     if (status === 'discard') {
+       chunkLeft = (chunkLen - chunkPos);
+       if (pktLeft <= chunkLeft) {
+@@ -996,6 +996,7 @@
+   var onstep;
+   var mode;
+   var fileSize;
++  var stats;
+ 
+   if (typeof opts === 'function') {
+     cb = opts;
+@@ -1017,6 +1018,8 @@
+     //preserve = (opts.preserve ? true : false);
+     if (typeof opts.mode === 'string' || typeof opts.mode === 'number')
+       mode = modeNum(opts.mode);
++    if (opts.stats && typeof opts.stats === "object")
++      stats = opts.stats;
+   }
+ 
+   // internal state variables
+@@ -1143,17 +1146,21 @@
+               return singleRead(datapos, dstpos + nb, origChunkLen - nb);
+ 
+             if (total === fsize) {
+-              dst.close(dstHandle, function(err) {
+-                dstHandle = undefined;
+-                if (err)
+-                  return onerror(err);
+-                src.close(srcHandle, function(err) {
+-                  srcHandle = undefined;
+-                  if (err)
+-                    return onerror(err);
+-                  cb();
++              if (stats !== undefined) {
++                dst.fsetstat(dstHandle, stats, function tryAgain(err) {
++                  if (err) {
++                    // Try setstat() for sftp servers that may not support fsetstat() for
++                    // whatever reason
++                    dst.setstat(dstPath, stats, function(err_) {
++                      tryAgain();
++                    });
++                    return;
++                  }
++                  close();
+                 });
+-              });
++              } else {
++                close();
++              }
+               return;
+             }
+ 
+@@ -1166,6 +1173,20 @@
+           }
+         }
+ 
++        function close() {
++          dst.close(dstHandle, function(err) {
++            dstHandle = undefined;
++            if (err)
++              return onerror(err);
++            src.close(srcHandle, function(err) {
++              srcHandle = undefined;
++              if (err)
++                return onerror(err);
++              cb();
++            });
++          });
++        }
++
+         function makeCb(psrc, pdst, chunk) {
+           return function(err, nb, data) {
+             onread(err, nb, data, pdst, psrc, chunk);

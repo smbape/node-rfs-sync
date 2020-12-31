@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"folder_exclude_patterns": [
+				".svn",
+				".git",
+				".hg",
+				".cache",
+				"CVS",
+				"node_modules"
+			]
+		}
+	]
+}
