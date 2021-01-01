@@ -8,7 +8,7 @@ const read = require("read");
 const {Client} = require("ssh2");
 const SyncWriteStream = require("syncwritestream");
 const eachSeries = require("async/eachSeries");
-const log4js = require("@log4js-node/log4js-api");
+const log4js = require("log4js");
 const {upload, protocols} = require("../");
 
 const logger = log4js.getLogger("rfs-sync-cli");
@@ -16,6 +16,23 @@ const logger = log4js.getLogger("rfs-sync-cli");
 const MAX_ATTEMPTS = 3;
 const SSH_DEFAULT_PORT = 22;
 const emptyFn = Function.prototype;
+
+log4js.configure({
+    "appenders": {
+        "console": {
+            "type": "console",
+            "layout": {
+                "type": "colored"
+            }
+        }
+    },
+    "categories": {
+        "default": {
+            "appenders": ["console"],
+            "level": process.env.LEVEL || "DEBUG"
+        }
+    }
+});
 
 function tryNextAuth(stdin, stdout, config, auths, next) {
     // eslint-disable-next-line no-invalid-this
